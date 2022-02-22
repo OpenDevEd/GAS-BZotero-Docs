@@ -5,8 +5,8 @@ function insertUpdateBibliography() {
 // insertUpdateBibliography and prepareForPublishing use the function
 function universalInsertUpdateBibliography(validate, getparams) {
   const ui = DocumentApp.getUi();
-  const textToDetectStartBib = '⁅bibliography:start⁆';
-  const textToDetectEndBib = '⁅bibliography:end⁆';
+  // const textToDetectStartBib = '⁅bibliography:start⁆';
+  // const textToDetectEndBib = '⁅bibliography:end⁆';
 
   try {
     const doc = DocumentApp.getActiveDocument();

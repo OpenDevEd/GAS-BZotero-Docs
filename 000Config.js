@@ -14,25 +14,12 @@ const URL_CHANGED_LINK_MARK = '<URL_CHANGED_LINK>';
 const BROKEN_LINK_MARK = '<BROKEN_LINK>';
 const UNKNOWN_LIBRARY_MARK = '<UNKNOWN_LIBRARY>';
 
-const LINK_MARK_STYLE = {
-                foregroundColor: {
-                  color: {
-                    rgbColor: {
-                      red: 1.0
-                    }
-                  }
-                },
-                backgroundColor: {
-                  color: {
-                    rgbColor: {
-                      red: 1.0,
-                      blue: 1.0,
-                      green: 1.0
-                    }
-                  }
-                },
-                bold: true
-              };
-const LINK_MARK_FIELDS = 'foregroundColor, backgroundColor, bold';
+const textToDetectStartBib = '⁅bibliography:start⁆';
+const textToDetectEndBib = '⁅bibliography:end⁆';
+
+let LINK_MARK_STYLE_NEW = new Object();
+LINK_MARK_STYLE_NEW[DocumentApp.Attribute.FOREGROUND_COLOR] = '#ff0000';
+LINK_MARK_STYLE_NEW[DocumentApp.Attribute.BACKGROUND_COLOR] = '#ffffff';
+LINK_MARK_STYLE_NEW[DocumentApp.Attribute.BOLD] = true;
 
 const autoPromptCollection = false;

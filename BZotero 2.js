@@ -55,8 +55,8 @@ function scanForItemKey(targetRefLinks) {
       if (libLink != null) {
         result = detectZoteroItemKeyType('https://' + libLink);
         if (result.status == 'error') {
-          addZoteroItemKey('', false, false, targetRefLinks);
-          return 0;
+          result = addZoteroItemKey('', false, false, targetRefLinks);
+          return result;
         }
         foundFlag = true;
       }
@@ -65,12 +65,15 @@ function scanForItemKey(targetRefLinks) {
   }
 
   if (!foundFlag) {
-    addZoteroItemKey('', false, false, targetRefLinks);
+    result = addZoteroItemKey('', false, false, targetRefLinks);
+    return result;
   }
 }
 
 
 function targetReferenceLinks() {
+  const ui = DocumentApp.getUi();
+  let result;
   let currentTargetRefLinks = getDocumentPropertyString('target_ref_links');
   // UserProperty -> DocumentProperty Update
   const kerkoValidationSite = getDocumentPropertyString('kerko_validation_site');
@@ -84,7 +87,19 @@ function targetReferenceLinks() {
 
   const proposedTargetRefLinks = (currentTargetRefLinks == 'zotero') ? 'kerko' : 'zotero';
 
-  const ui = DocumentApp.getUi();
+  let currentZoteroItemKey = getDocumentPropertyString('zotero_item');
+  if (currentZoteroItemKey == null) {
+    result = scanForItemKey(proposedTargetRefLinks);
+    if (result.status == 'error') {
+      ui.alert(result.message);
+      return 0;
+    }
+    if (result.status == 'stop') {
+      return 0;
+    }
+  }
+
+
   const response = ui.alert('Advanced option: Target for reference links',
     `Chose whether the reference links in this document should open in Zotero or on ${kerkoValidationSite} (kerko). 
   
@@ -99,7 +114,6 @@ Do you wish to change the target to ‘${proposedTargetRefLinks}’?`, ui.Button
     onOpen();
     const response2 = ui.alert('You have changed the target for reference links', 'The links will now be reconfigured.', ui.ButtonSet.OK_CANCEL);
     if (response2 == ui.Button.OK) {
-      Logger.log('Validate links');
       validateLinks(false, true, false);
     }
   }
@@ -148,13 +162,16 @@ function addZoteroItemKey(errorText = '', optional = false, bibliography = false
 
     let res = detectZoteroItemKeyType(zotero_item);
     if (res.status == 'error') {
-      addZoteroItemKey(res.message, optional, bibliography, targetRefLinks);
+      res = addZoteroItemKey(res.message, optional, bibliography, targetRefLinks);
     }
+    //return res;
   } else if (response.getSelectedButton() == ui.Button.CANCEL) {
     if (targetRefLinks == 'kerko') {
-      const notification = ui.alert('For validation against the evidence library a Zotero item key is required.', 'Please obtain the key from Zotero or your reference, and try again.', ui.ButtonSet.OK);
+      ui.alert('For validation against the evidence library a Zotero item key is required.', 'Please obtain the key from Zotero or your reference, and try again.', ui.ButtonSet.OK);
+      return { status: 'stop' };
     }
   }
+  return { status: 'ok' };
 }
 
 // addZoteroItemKey, scanForItemKey use the function

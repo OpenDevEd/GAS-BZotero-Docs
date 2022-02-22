@@ -37,6 +37,7 @@ function onOpen(e) {
       targetMenuString = 'Target: Kerko; change to Zotero';
     } else {
       targetMenuString = 'Target: Zotero; change to Kerko';
+      targetRefLinks = 'zotero';
     }
     let currentZoteroCollectionKey = getDocumentPropertyString('zotero_collection_key');
     zoteroCollectionKeyAction = currentZoteroCollectionKey == null ? 'Add' : 'Change';
@@ -70,6 +71,8 @@ function onOpen(e) {
     .addItem('Convert ZoteroTransfer markers to BZotero', 'zoteroTransferDoc')
     .addSeparator()
     .addItem('Remove country markers (⇡...: )', 'removeCountryMarkers')
+    .addSeparator()
+    .addItem('Show links & urls', 'validateLinksTestHelper')
   );
   // Elena: I would like these options to only appear for OpenDevEd users. However, the if (...) doesn't work. What is wrong?
   if (opendevedUser) {
