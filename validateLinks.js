@@ -3,7 +3,7 @@ function testAddSrcToURL() {
 }
 
 function addSrcToURL(url, targetRefLinks, srcParameter, zoteroCollectionKey) {
-  Logger.log('targetRefLinks=' + targetRefLinks + ' srcParameter=' + srcParameter + ' zoteroCollectionKey=' + zoteroCollectionKey);
+  //Logger.log('targetRefLinks=' + targetRefLinks + ' srcParameter=' + srcParameter + ' zoteroCollectionKey=' + zoteroCollectionKey);
 
   if (srcParameter == '') {
     const checkSrc = /src=[a-zA-Z0-9:]+&?/.exec(url);
@@ -135,7 +135,7 @@ function validateLinks(validate = true, getparams = true, markorphanedlinks = tr
 
     let zoteroCollectionKey;
     let currentZoteroCollectionKey = getDocumentPropertyString('zotero_collection_key');
-    if (currentZoteroCollectionKey == null && targetRefLinks == 'zotero' && autoPromptCollection) {
+    if (currentZoteroCollectionKey == null && targetRefLinks == 'zotero' && AUTO_PROMPT_COLLECTION) {
       addZoteroCollectionKey('', true, false);
       currentZoteroCollectionKey = getDocumentPropertyString('zotero_collection_key');
       if (currentZoteroCollectionKey == null) {
@@ -156,13 +156,16 @@ function validateLinks(validate = true, getparams = true, markorphanedlinks = tr
 
     // BZotero Task 0
     // UserProperty -> DocumentProperty Update
+    let flagSetValidationSite = false;
     let validationSite = getDocumentPropertyString('kerko_validation_site');
     if (validationSite == null) {
       const activeUser = Session.getEffectiveUser().getEmail();
       if (activeUser.search(/edtechhub.org/i) != -1) {
         validationSite = 'https://docs.edtechhub.org/lib/';
+        flagSetValidationSite = true;
       } else if (activeUser.search(/opendeved.net/i) != -1) {
         validationSite = 'https://docs.opendeved.net/lib/';
+        flagSetValidationSite = true;
       } else {
         enterValidationSite();
         // UserProperty -> DocumentProperty Update
@@ -173,6 +176,11 @@ function validateLinks(validate = true, getparams = true, markorphanedlinks = tr
         }
       }
 
+      if (flagSetValidationSite === true) {
+        setDocumentPropertyString('kerko_validation_site', validationSite);
+        updateStyle();
+        onOpen();
+      }
       //Logger.log('Default validationSite');
     }
     // End. BZotero Task 0   
@@ -193,8 +201,8 @@ function validateLinks(validate = true, getparams = true, markorphanedlinks = tr
 
     const body = doc.getBody();
 
-    let rangeElementStart = body.findText(textToDetectStartBib);
-    let rangeElementEnd = body.findText(textToDetectEndBib);
+    let rangeElementStart = body.findText(TEXT_TO_DETECT_START_BIB);
+    let rangeElementEnd = body.findText(TEXT_TO_DETECT_END_BIB);
 
     console.log('next version test');
 
@@ -417,20 +425,28 @@ function checkLink(url, validationSite, validate) {
     itemKeyOut = itemKeyIn;
   }
 
-  // 2021-05-14 Update
+  // [OLD] 2021-05-14 Update
   //permittedLibraries
+  // let permittedLibrary = false;
+  // for (let i in permittedLibraries) {
+  //   if (validationSite.indexOf(permittedLibraries[i].Domain) != -1) {
+  //     if (permittedLibraries[i].Permitted.indexOf(grourIdOut) != -1) {
+  //       permittedLibrary = true;
+  //       break;
+  //     }
+  //   }
+  // }
+  // result.permittedLibrary = permittedLibrary;
+  // End. [OLD] 2021-05-14 Update
+
+  // 2022-03-25 Update Permitted libraries new version
   let permittedLibrary = false;
-  for (let i in permittedLibraries) {
-    if (validationSite.indexOf(permittedLibraries[i].Domain) != -1) {
-      if (permittedLibraries[i].Permitted.indexOf(grourIdOut) != -1) {
-        permittedLibrary = true;
-        break;
-      }
-    }
+  if (PERMITTED_LIBRARIES.includes(grourIdOut)) {
+    permittedLibrary = true;
   }
-  //Logger.log(grourIdOut + ' permittedLibrary=' + permittedLibrary);
   result.permittedLibrary = permittedLibrary;
-  // End. 2021-05-14 Update
+  // End. 2022-03-25 Update Permitted libraries new version
+
 
   // BZotero 2 Task 2
   result.bibRef = grourIdOut + ':' + itemKeyOut;
@@ -497,11 +513,11 @@ function findLinksToValidate(element, validate, getparams, markorphanedlinks, bi
     // Is the text bibliography?
     if (flagsObject.bibliographyExists === true) {
 
-      if (flagsObject.dontCollectLinksFlag === false && element.getText().includes(textToDetectStartBib)) {
+      if (flagsObject.dontCollectLinksFlag === false && element.getText().includes(TEXT_TO_DETECT_START_BIB)) {
         flagsObject.dontCollectLinksFlag = true;
         Logger.log('⁅bibliography:start⁆');
       }
-      if (flagsObject.dontCollectLinksFlag === true && element.getText().includes(textToDetectEndBib)) {
+      if (flagsObject.dontCollectLinksFlag === true && element.getText().includes(TEXT_TO_DETECT_END_BIB)) {
         flagsObject.dontCollectLinksFlag = false;
         Logger.log('⁅bibliography:end⁆');
       }

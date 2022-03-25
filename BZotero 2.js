@@ -33,6 +33,7 @@ function enterValidationSite(errorText = '') {
     if (url.search(urlRegEx) == 0) {
       // UserProperty -> DocumentProperty Update
       setDocumentPropertyString('kerko_validation_site', url);
+      updateStyle();
       onOpen();
     } else {
       enterValidationSite('Error!\n');

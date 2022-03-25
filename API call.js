@@ -1,25 +1,19 @@
 function forestAPIcall(validationSite, zoteroItemKey, zoteroItemGroup, bibReferences, docOrPresoId, target, mode = 'bib') {
   try {
     const groupkeys = bibReferences.join(',');
-    //Logger.log('groupkeys = ' + groupkeys);
-
     const activeUser = Session.getActiveUser().getEmail();
-    const token = "40a0f24c-97e2-11eb-9121-1b1f2347b7a9";
+    const token = BIBAPI_TOKEN;
 
     const apiCall = 'https://forest.opendeved.net/api?&user=' + activeUser
       + '&zkey=' + zoteroItemKey + '&zgroup=' + zoteroItemGroup
       + '&gdoc=' + docOrPresoId + '&token=' + token + '&groupkeys=' + groupkeys + '&target=' + target + '&mode=' + mode;
-     Logger.log('apiCall = ' + apiCall);
 
     const response = UrlFetchApp.fetch(apiCall, { 'muteHttpExceptions': true });
-    //Logger.log(response.getResponseCode());
     const code = response.getResponseCode();
     let biblTexts = [];
-    //Logger.log(response.getContentText());
 
     if (code == 200) {
       let jsonResponse = JSON.parse(response.getContentText());
-      //Logger.log(jsonResponse);
       if (jsonResponse.status == 0) {
         /*
         Björn
@@ -31,7 +25,6 @@ function forestAPIcall(validationSite, zoteroItemKey, zoteroItemGroup, bibRefere
         }
       */
         workOnBibApiElement(1, biblTexts, jsonResponse.data.elements);
-        //Logger.log(biblTexts);  
         return { status: 'ok', biblTexts: biblTexts };
       } else {
         /*
@@ -53,8 +46,6 @@ function forestAPIcall(validationSite, zoteroItemKey, zoteroItemGroup, bibRefere
       const messagestring = "Status: " + jsonResponse.status + ". Message: " + jsonResponse.message + ". Error: " + jsonResponse.error;
       return { status: 'error', message: 'Failed to retrieve data from Zotero. ' + messagestring + ". Please let your admins know about this error." };
     } else {
-      // We don't want to show the API call, as it contains the API key
-      // return { status: 'error', message: 'Response Code = ' + code + '  apiCall = ' + apiCall };
       return { status: 'error', message: 'Call to forestAPI failed. Response Code = ' + code + '. Please let your admins know about this error.' };
     }
   }

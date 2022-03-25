@@ -3,6 +3,13 @@ function onOpen(e) {
   // https://developers.google.com/workspace/add-ons/concepts/editor-auth-lifecycle#the_complete_lifecycle
   let targetRefLinks;
 
+  const activeUser = Session.getEffectiveUser().getEmail();
+  // if (activeUser.search(/opendeved.net/i) != -1) {
+  //   opendevedUser = true;
+  // }
+  opendevedUser = getStyleValue('local_show_advanced_menu');
+
+
   if (e && e.authMode == ScriptApp.AuthMode.NONE) {
     targetMenuString = 'Target: Zotero; change to Kerko';
     kerkoValidationSite = '<Enter validation site>';
@@ -10,10 +17,10 @@ function onOpen(e) {
     zoteroCollectionKeyAction = 'Add/change';
     targetRefLinks = 'zotero';
   } else {
-    const activeUser = Session.getEffectiveUser().getEmail();
-    if (activeUser.search(/opendeved.net/i) != -1) {
-      opendevedUser = true;
-    }
+    // const activeUser = Session.getEffectiveUser().getEmail();
+    // if (activeUser.search(/opendeved.net/i) != -1) {
+    //   opendevedUser = true;
+    // }
     kerkoValidationSite = getDocumentPropertyString('kerko_validation_site');
     if (kerkoValidationSite == null) {
       if (activeUser.search(/edtechhub.org/i) != -1) {
@@ -67,13 +74,15 @@ function onOpen(e) {
     .addItem('Enter validation site', 'enterValidationSite')
   );
   menu.addSubMenu(DocumentApp.getUi().createMenu('Additional functions')
+    .addItem('Show links & urls', 'validateLinksTestHelper')
+    .addSeparator()
     .addItem('zpack Turn Zotero text citations into links', 'packZoteroCall')
     .addItem('Convert ZoteroTransfer markers to BZotero', 'zoteroTransferDoc')
     .addSeparator()
     .addItem('Remove country markers (⇡...: )', 'removeCountryMarkers')
-    .addSeparator()
-    .addItem('Show links & urls', 'validateLinksTestHelper')
   );
+
+  Logger.log('opendevedUser=' + opendevedUser);
   // Elena: I would like these options to only appear for OpenDevEd users. However, the if (...) doesn't work. What is wrong?
   if (opendevedUser) {
     menu.addSeparator()
