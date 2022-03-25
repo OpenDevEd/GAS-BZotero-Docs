@@ -14,7 +14,10 @@ const styles = {
     "TEXT_TO_DETECT_END_BIB": "⁅bibliography:end⁆",
     "LINK_MARK_STYLE_FOREGROUND_COLOR": "#ff0000",
     "LINK_MARK_STYLE_BACKGROUND_COLOR": "#ffffff",
-    "LINK_MARK_STYLE_BOLD": true
+    "LINK_MARK_STYLE_BOLD": true,
+    "kerkoValidationSite": null,
+    "group_id": null
+
   },
   "opendeved":
   {
@@ -22,7 +25,11 @@ const styles = {
     "default_everybody": false,
     "default_for": "opendeved.net",
     "permitted_libraries": ["2129771", "2405685", "2486141", "2447227"],
-    "local_show_advanced_menu": true
+    "local_show_advanced_menu": true,
+// ./_menu.js:27:        kerkoValidationSite = 'https://docs.edtechhub.org/lib/';
+//./_menu.js:29:        kerkoValidationSite = 'https://docs.opendeved.net/lib/';
+    "kerkoValidationSite": 'https://docs.opendeved.net/lib/',
+    "group_id": "2129771",
   },
   "edtechhub":
   {
@@ -31,7 +38,10 @@ const styles = {
     "default_for": "edtechhub.org",
     "permitted_libraries": ["2405685", "2339240", "2129771"],
     "LINK_MARK_STYLE_BACKGROUND_COLOR": "#dddddd",
-  }
+    "kerkoValidationSite": 'https://docs.edtechhub.org/lib/',
+    "group_id": "2405685"
+  },
+  // "some_other_domain": { ... }
 };
 
 // Gets default style based on user's domain
