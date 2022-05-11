@@ -154,25 +154,34 @@ function validateLinks(validate = true, getparams = true, markorphanedlinks = tr
 
     // End. Task 9 2021-04-13 (1)
 
-    // BZotero Task 0
-    // UserProperty -> DocumentProperty Update
+    let doc = DocumentApp.getActiveDocument();
+
+    // Gets validationSite
     let flagSetValidationSite = false;
     let validationSite = getDocumentPropertyString('kerko_validation_site');
     if (validationSite == null) {
+
       const activeUser = Session.getEffectiveUser().getEmail();
-      if (activeUser.search(/edtechhub.org/i) != -1) {
-        validationSite = 'https://docs.edtechhub.org/lib/';
+      const defaultForActiveUserStyle = detectDefaultForStyle(activeUser);
+      if (defaultForActiveUserStyle != null) {
+        validationSite = styles[defaultForActiveUserStyle]["kerkoValidationSite"];
         flagSetValidationSite = true;
-      } else if (activeUser.search(/opendeved.net/i) != -1) {
-        validationSite = 'https://docs.opendeved.net/lib/';
-        flagSetValidationSite = true;
-      } else {
-        enterValidationSite();
-        // UserProperty -> DocumentProperty Update
-        validationSite = getDocumentPropertyString('kerko_validation_site');
-        if (validationSite == null) {
-          ui.alert('Please enter Validation site');
-          return 0;
+      }
+
+      let editorDomain, defaultForOwnerDomainStyle;
+      if (flagSetValidationSite === false) {
+        const editors = doc.getEditors();
+        for (let i in editors) {
+          //Logger.log('Editor = ' + editors[i]);
+          editorDomain = String(editors[i]).split('@')[1];
+          //Logger.log('editorDomain = ' + editorDomain);
+          defaultForOwnerDomainStyle = detectDefaultForStyle(editorDomain);
+          if (defaultForOwnerDomainStyle != null) {
+            validationSite = styles[defaultForOwnerDomainStyle]["kerkoValidationSite"];
+            //Logger.log('validationSite by owner = ' + validationSite);
+            flagSetValidationSite = true;
+            break;
+          }
         }
       }
 
@@ -180,10 +189,16 @@ function validateLinks(validate = true, getparams = true, markorphanedlinks = tr
         setDocumentPropertyString('kerko_validation_site', validationSite);
         updateStyle();
         onOpen();
+      } else {
+        enterValidationSite();
+        validationSite = getDocumentPropertyString('kerko_validation_site');
+        if (validationSite == null) {
+          ui.alert('Please enter Validation site');
+          return 0;
+        }
       }
-      //Logger.log('Default validationSite');
     }
-    // End. BZotero Task 0   
+    // End. Gets validationSite
 
     let notiText = '';
     let flagsObject = {
@@ -197,14 +212,12 @@ function validateLinks(validate = true, getparams = true, markorphanedlinks = tr
 
 
     let result;
-    let doc = DocumentApp.getActiveDocument();
+
 
     const body = doc.getBody();
 
     let rangeElementStart = body.findText(TEXT_TO_DETECT_START_BIB);
     let rangeElementEnd = body.findText(TEXT_TO_DETECT_END_BIB);
-
-    console.log('next version test');
 
     if (rangeElementStart != null && rangeElementEnd != null) {
       flagsObject.bibliographyExists = true;
@@ -361,6 +374,9 @@ function checkHyperlinkNew(url, element, start, end, validate, getparams, markor
 
 
 function checkLink(url, validationSite, validate) {
+
+  Logger.log('validationSite=' + validationSite);
+
   let urlOut, itemKeyOut;
   let opendevedPartLink, itemKeyIn, groupIdIn;
 
@@ -378,10 +394,16 @@ function checkLink(url, validationSite, validate) {
 
   // New code Adjustment of broken links  2021-05-03
   let new_Url;
-  if (groupIdIn == '2405685' || groupIdIn == '2129771') {
-    newUrl = validationSite + itemKeyIn;
+
+  if (validationSite != '-') {
+
+    if (groupIdIn == '2405685' || groupIdIn == '2129771') {
+      newUrl = validationSite + itemKeyIn;
+    } else {
+      newUrl = validationSite + groupIdIn + ':' + itemKeyIn;
+    }
   } else {
-    newUrl = validationSite + groupIdIn + ':' + itemKeyIn;
+    newUrl = url;
   }
   // Logger.log('newUrl=' + newUrl);
   // End. New code Adjustment of broken links  2021-05-03 
@@ -400,13 +422,16 @@ function checkLink(url, validationSite, validate) {
   }
   // End. 2021-05-11 Update
 
-  let resultDetectGroupId = detectGroupId(validationSite);
-  if (resultDetectGroupId.status == 'error') {
-    return resultDetectGroupId;
-  }
-  let grourIdOut = resultDetectGroupId.grourId;
+  // OLD
+  // let resultDetectGroupId = detectGroupId(validationSite);
+  // if (resultDetectGroupId.status == 'error') {
+  //   return resultDetectGroupId;
+  // }
+  // let grourIdOut = resultDetectGroupId.grourId;
 
-  if (validate && result.type == 'NORMAL LINK') {
+  let grourIdOut = styles[ACTIVE_STYLE]['group_id'];
+
+  if (validate && result.type == 'NORMAL LINK' && validationSite != '-') {
     urlOut = result.url;
     if (urlOut.search(validationSiteRegEx) != 0) {
       return { status: 'error', message: 'Unexpected redirect URL ' + urlOut + ' for link ' + url + ' Script expects ' + validationSite };
@@ -440,11 +465,13 @@ function checkLink(url, validationSite, validate) {
   // End. [OLD] 2021-05-14 Update
 
   // 2022-03-25 Update Permitted libraries new version
-  let permittedLibrary = false;
-  if (PERMITTED_LIBRARIES.includes(grourIdOut)) {
-    permittedLibrary = true;
+  if (validationSite != '-') {
+    let permittedLibrary = false;
+    if (PERMITTED_LIBRARIES.includes(grourIdOut)) {
+      permittedLibrary = true;
+    }
+    result.permittedLibrary = permittedLibrary;
   }
-  result.permittedLibrary = permittedLibrary;
   // End. 2022-03-25 Update Permitted libraries new version
 
 
@@ -454,7 +481,9 @@ function checkLink(url, validationSite, validate) {
   return result;
 }
 
+// To delete
 function detectGroupId(validationSite) {
+
   let grourIdOut;
   if (validationSite == 'https://docs.opendeved.net/lib/') {
     grourIdOut = '2129771';
@@ -463,34 +492,40 @@ function detectGroupId(validationSite) {
   } else {
     return { status: 'error', message: 'Incorrect validation site.' };
   }
+
   return { status: 'ok', grourId: grourIdOut };
+
 }
 
 function detectRedirect(url) {
   try {
-    //Logger.log('detectRedirect' + url);
+    Logger.log('detectRedirect' + url);
     let redirect;
     let response = UrlFetchApp.fetch(url, { 'followRedirects': false, 'muteHttpExceptions': true });
-    //Logger.log(response.getResponseCode());
+    Logger.log(response.getResponseCode());
 
     if (response.getResponseCode() == 404) {
-      //Logger.log('response.getResponseCode() == 404');
-      return { status: 'ok', type: 'BROKEN LINK' }
+      Logger.log('response.getResponseCode() == 404');
+      return { status: 'ok', type: 'BROKEN LINK' };
+      // }else if (response.getResponseCode() == 302 && ){
+
     } else {
       let headers = response.getAllHeaders();
       if (headers.hasOwnProperty('Refresh')) {
+        Logger.log('headers.hasOwnProperty(Refresh)');
         //Logger.log('Redirect' + headers['Refresh']);
         if (headers['Refresh'].search('0; URL=') == 0) {
           redirect = headers['Refresh'].replace('0; URL=', '');
           //Logger.log('  ' + redirect);
           return detectRedirect(redirect);
         }
-      } else if (headers.hasOwnProperty('Location')) {
+      } else if (headers.hasOwnProperty('Location') && !(response.getResponseCode() == 302 && headers['Location'].search('/groups/') == 0)) {
+        Logger.log('headers.hasOwnProperty(Location)');
         redirect = headers['Location'];
-        //Logger.log('  ' + redirect);
+        Logger.log('  ' + redirect);
         return detectRedirect(redirect);
       } else {
-        //Logger.log('no Redirect');
+        Logger.log('no Redirect');
         return { status: 'ok', type: 'NORMAL LINK', url: url }
       }
     }

@@ -4,9 +4,19 @@ function forestAPIcall(validationSite, zoteroItemKey, zoteroItemGroup, bibRefere
     const activeUser = Session.getActiveUser().getEmail();
     const token = BIBAPI_TOKEN;
 
-    const apiCall = 'https://forest.opendeved.net/api?&user=' + activeUser
+    const activeUserDomain = String(activeUser).split('@')[1];
+
+    if (activeUserDomain != 'edtechhub.org' && activeUserDomain != 'opendeved.net') {
+      return { status: 'error', message: 'Access denied! You can\'t use Forest API.' };
+    }
+
+    let apiCall = 'https://forest.opendeved.net/api?&user=' + activeUser
       + '&zkey=' + zoteroItemKey + '&zgroup=' + zoteroItemGroup
       + '&gdoc=' + docOrPresoId + '&token=' + token + '&groupkeys=' + groupkeys + '&target=' + target + '&mode=' + mode;
+
+    if (apiCall.length > 2048) {
+      return { status: 'error', message: 'This document has too many references. Please check for alternatives with your systems administrator.' };
+    }
 
     const response = UrlFetchApp.fetch(apiCall, { 'muteHttpExceptions': true });
     const code = response.getResponseCode();

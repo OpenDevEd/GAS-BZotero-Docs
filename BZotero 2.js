@@ -3,6 +3,7 @@ function deleteDocumentPropertyStringZoteroItemKey() {
   var documentProperties = PropertiesService.getDocumentProperties();
   documentProperties.deleteProperty('zotero_item');
   documentProperties.deleteProperty('zotero_collection_key');
+  documentProperties.deleteProperty('kerko_validation_site');
 }
 
 function setDocumentPropertyString(property_name, value) {
@@ -28,9 +29,9 @@ function enterValidationSite(errorText = '') {
 
   if (response.getSelectedButton() == ui.Button.OK) {
     let url = response.getResponseText().trim();
-    if (url.charAt(url.length - 1) != '/') url += '/';
+    if (url.charAt(url.length - 1) != '/' && url != '-') url += '/';
     const urlRegEx = new RegExp('https?://', 'i');
-    if (url.search(urlRegEx) == 0) {
+    if (url.search(urlRegEx) == 0 || url == '-') {
       // UserProperty -> DocumentProperty Update
       setDocumentPropertyString('kerko_validation_site', url);
       updateStyle();
@@ -45,10 +46,14 @@ function scanForItemKey(targetRefLinks) {
   const doc = DocumentApp.getActiveDocument();
   const body = doc.getBody();
   const tables = body.getTables();
-  let rangeElement, tableText, libLink, result;
+  let rangeElement, tableText, libLink, result, tablesLimit = 2;
   let foundFlag = false;
-  for (let i = 0; i < 2; i++) {
-    if (tables.length == 0) break;
+  // How many tables to check
+  if (tables.length < 2){
+    tablesLimit = tables.length;
+  }
+  for (let i = 0; i < tablesLimit; i++) {
+    // if (tables.length == 0) break;
     rangeElement = tables[i].findText('docs.edtechhub.org/lib/[^/]+|docs.opendeved.net/lib/[^/]+');
     if (rangeElement) {
       tableText = rangeElement.getElement().asText().getText();

@@ -26,8 +26,6 @@ const styles = {
     "default_for": "opendeved.net",
     "permitted_libraries": ["2129771", "2405685", "2486141", "2447227"],
     "local_show_advanced_menu": true,
-// ./_menu.js:27:        kerkoValidationSite = 'https://docs.edtechhub.org/lib/';
-//./_menu.js:29:        kerkoValidationSite = 'https://docs.opendeved.net/lib/';
     "kerkoValidationSite": 'https://docs.opendeved.net/lib/',
     "group_id": "2129771",
   },
@@ -40,18 +38,29 @@ const styles = {
     "LINK_MARK_STYLE_BACKGROUND_COLOR": "#dddddd",
     "kerkoValidationSite": 'https://docs.edtechhub.org/lib/',
     "group_id": "2405685"
-  },
-  // "some_other_domain": { ... }
+  }
 };
+
+// Gets styleName based on email of active user or owner's domain
+// validateLinks, getDefaultStyle use the function
+function detectDefaultForStyle(emailOrDomain) {
+  for (let styleName in styles) {
+    if (styles[styleName]['default_for'] && emailOrDomain.search(new RegExp(styles[styleName]['default_for'], 'i')) != -1) {
+      return styleName;
+    }
+  }
+  return null;
+}
 
 // Gets default style based on user's domain
 function getDefaultStyle() {
   const activeUser = Session.getEffectiveUser().getEmail();
-  for (let styleName in styles) {
-    if (styles[styleName]['default_for'] && activeUser.search(new RegExp(styles[styleName]['default_for'], 'i')) != -1) {
-      return styleName;
-    }
+
+  const defaultForStyle = detectDefaultForStyle(activeUser);
+  if (defaultForStyle != null) {
+    return defaultForStyle;
   }
+
   // If user's domain isn't presented in styles object, find style that is suitable for everybody
   return getDefaultEverybodyStyleName();
 }
