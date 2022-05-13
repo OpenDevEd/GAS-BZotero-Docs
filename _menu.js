@@ -74,6 +74,7 @@ function onOpen(e) {
     .addItem('Enter validation site', 'enterValidationSite')
   );
   menu.addSubMenu(DocumentApp.getUi().createMenu('Additional functions')
+    .addItem('Show item keys', 'showItemKeys')
     .addItem('Show links & urls', 'validateLinksTestHelper')
     .addSeparator()
     .addItem('zpack Turn Zotero text citations into links', 'packZoteroCall')
