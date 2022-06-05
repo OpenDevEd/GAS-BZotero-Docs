@@ -62,7 +62,7 @@ function changeAllLinks(element, toDo) {
           if (checkOpenin != null) {
             getIndexFlag = true;
           }else{
-            Logger.log(partAttributes.LINK_URL + ' skip');
+            //Logger.log(partAttributes.LINK_URL + ' skip');
           }
         } else if (toDo == 'removeUnderlineFromHyperlinks' && partAttributes.UNDERLINE) {
           getIndexFlag = true;
@@ -77,7 +77,7 @@ function changeAllLinks(element, toDo) {
           }
           if (toDo == 'removeOpeninZoteroapp') {
             element.setLinkUrl(indices[i], end, removeOpeninZoteroappFromUrl(partAttributes.LINK_URL, checkOpenin));
-            Logger.log(partAttributes.LINK_URL + ' change');
+            //Logger.log(partAttributes.LINK_URL + ' change');
           }
           if (toDo == 'removeUnderlineFromHyperlinks') {
             element.setUnderline(indices[i], end, false);

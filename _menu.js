@@ -83,7 +83,7 @@ function onOpen(e) {
     .addItem('Remove country markers (⇡...: )', 'removeCountryMarkers')
   );
 
-  Logger.log('opendevedUser=' + opendevedUser);
+  // Logger.log('opendevedUser=' + opendevedUser);
   // Elena: I would like these options to only appear for OpenDevEd users. However, the if (...) doesn't work. What is wrong?
   if (opendevedUser) {
     menu.addSeparator()

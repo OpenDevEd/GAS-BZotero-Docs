@@ -41,23 +41,6 @@ function multiReplace() {
 };
 
 
-function multiReplaceSheet() {
-  var iostr = getSheetDataByRange("1KsNsdXNpG21Yds864ynhWerVPFQ_NxcbVUzJg4RQV0c","data","A:B");
-  alert('Programmed multi-replace. Read '+iostr.length+ " replacements.");
-  // alert('hello '+iostr[0][0]+"->"+iostr[0][1]);
-  for (var i=0; i<iostr.length; i++) {
-    if (iostr[i][0] && iostr[i][1] && iostr[i][0].match(/\S/)) {
-      // alert('hello '+iostr[i][0]+"->"+iostr[i][1]);
-      singleReplacePartial(iostr[i][0],iostr[i][1],false,false,null, true, true);
-    };
-  };
-};
-
-function getSheetDataByRange(id,sheetName,range) {
-  var sheet = SpreadsheetApp.openById(id).getSheetByName(sheetName);
-  var idr = sheet.getRange(range).getValues();
-  return idr;
-}
 
 
 //(?=a)

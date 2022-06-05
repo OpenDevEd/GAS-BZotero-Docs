@@ -28,7 +28,7 @@ function zoteroTransferDoc() {
       itemKey = groupItem[2];
 
       zoteroLink = '⟦zg:' + groupId + ':' + itemKey + '|' + linkText + '⟧';
-      Logger.log(zoteroLink);
+      //Logger.log(zoteroLink);
 
       newZoteroText = zoteroText.replace(zoteroLongString, zoteroLink);
       zoteroCitation.getElement().asText().setText(newZoteroText);

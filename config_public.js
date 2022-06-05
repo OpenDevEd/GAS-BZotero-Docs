@@ -68,7 +68,7 @@ function getDefaultStyle() {
 // The variable contains style of current doc
 // Initially, it is default style but function updateStyle can change it to another style based on DocumentProperties kerko_validation_site
 let ACTIVE_STYLE = getDefaultStyle();
-Logger.log('Test 1' + ACTIVE_STYLE);
+//Logger.log('Test 1' + ACTIVE_STYLE);
 
 let PERMITTED_LIBRARIES, AUTO_PROMPT_COLLECTION, ORPHANED_LINK_MARK, URL_CHANGED_LINK_MARK, BROKEN_LINK_MARK, UNKNOWN_LIBRARY_MARK, TEXT_TO_DETECT_START_BIB, TEXT_TO_DETECT_END_BIB,
   LINK_MARK_STYLE_FOREGROUND_COLOR, LINK_MARK_STYLE_BACKGROUND_COLOR, LINK_MARK_STYLE_BOLD;
@@ -77,15 +77,15 @@ const LINK_MARK_STYLE_NEW = new Object();
 
 // Changes a value of ACTIVE_STYLE to style that is default for DocumentProperties kerko_validation_site
 function updateStyle() {
-  Logger.log(' updateStyle()');
+  //Logger.log(' updateStyle()');
   try {
     const kerkoValidationSite = getDocumentPropertyString('kerko_validation_site');
-    Logger.log('kerkoValidationSite ' + kerkoValidationSite);
+    //Logger.log('kerkoValidationSite ' + kerkoValidationSite);
     if (kerkoValidationSite != null) {
       for (let styleName in styles) {
         if (styles[styleName]['default_for'] && kerkoValidationSite.search(new RegExp(styles[styleName]['default_for'], 'i')) != -1) {
           ACTIVE_STYLE = styleName;
-          Logger.log('Test 2' + ACTIVE_STYLE);
+          //Logger.log('Test 2' + ACTIVE_STYLE);
           break;
         }
       }
@@ -111,7 +111,7 @@ function updateStyle() {
 }
 
 updateStyle();
-Logger.log('Test 3' + ACTIVE_STYLE);
+//Logger.log('Test 3' + ACTIVE_STYLE);
 
 // Finds style that is suitable for everybody
 function getDefaultEverybodyStyleName() {

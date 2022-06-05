@@ -128,7 +128,7 @@ Do you wish to change the target to ‘${proposedTargetRefLinks}’?`, ui.Button
 
 
 function addZoteroCollectionKey(errorText = '', optional = false, bibliography = false) {
-  Logger.log('Function addZoteroCollectionKey ' + ' optional = ' + optional + ' bibliography = ' + bibliography);
+  // Logger.log('Function addZoteroCollectionKey ' + ' optional = ' + optional + ' bibliography = ' + bibliography);
   let currentZoteroCollectionKey = getDocumentPropertyString('zotero_collection_key');
   if (currentZoteroCollectionKey == null) {
     currentZoteroCollectionKey = '(you haven\'t set up Zotero collection key)';

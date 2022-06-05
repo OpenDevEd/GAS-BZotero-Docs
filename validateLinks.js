@@ -221,9 +221,9 @@ function validateLinks(validate = true, getparams = true, markorphanedlinks = tr
 
     if (rangeElementStart != null && rangeElementEnd != null) {
       flagsObject.bibliographyExists = true;
-      console.log('flagsObject.bibliographyExists = true;');
+      //console.log('flagsObject.bibliographyExists = true;');
     } else {
-      console.log('flagsObject.bibliographyExists = false;');
+      //console.log('flagsObject.bibliographyExists = false;');
     }
 
     // Body
@@ -249,7 +249,7 @@ function validateLinks(validate = true, getparams = true, markorphanedlinks = tr
       }
     }
     // End. Footnotes
-    Logger.log('bibReferences ' + bibReferences);
+    //Logger.log('bibReferences ' + bibReferences);
 
 
     if (validate === true || getparams === true || markorphanedlinks === true) {
@@ -271,7 +271,7 @@ function validateLinks(validate = true, getparams = true, markorphanedlinks = tr
       }
     }
     if (validate === false || getparams === false || markorphanedlinks === true) {
-      Logger.log('targetRefLinks (validate links)' + targetRefLinks);
+      //Logger.log('targetRefLinks (validate links)' + targetRefLinks);
       return { status: 'ok', bibReferences: bibReferences, validationSite: validationSite, zoteroItemGroup: zoteroItemGroup, zoteroItemKey: zoteroItemKey, zoteroItemKeyParameters: zoteroItemKeyParameters, targetRefLinks: targetRefLinks };
     }
 
@@ -375,7 +375,7 @@ function checkHyperlinkNew(url, element, start, end, validate, getparams, markor
 
 function checkLink(url, validationSite, validate) {
 
-  Logger.log('validationSite=' + validationSite);
+  //Logger.log('validationSite=' + validationSite);
 
   let urlOut, itemKeyOut;
   let opendevedPartLink, itemKeyIn, groupIdIn;
@@ -499,20 +499,20 @@ function detectGroupId(validationSite) {
 
 function detectRedirect(url) {
   try {
-    Logger.log('detectRedirect' + url);
+    //Logger.log('detectRedirect' + url);
     let redirect;
     let response = UrlFetchApp.fetch(url, { 'followRedirects': false, 'muteHttpExceptions': true });
-    Logger.log(response.getResponseCode());
+    //Logger.log(response.getResponseCode());
 
     if (response.getResponseCode() == 404) {
-      Logger.log('response.getResponseCode() == 404');
+      //Logger.log('response.getResponseCode() == 404');
       return { status: 'ok', type: 'BROKEN LINK' };
       // }else if (response.getResponseCode() == 302 && ){
 
     } else {
       let headers = response.getAllHeaders();
       if (headers.hasOwnProperty('Refresh')) {
-        Logger.log('headers.hasOwnProperty(Refresh)');
+        //Logger.log('headers.hasOwnProperty(Refresh)');
         //Logger.log('Redirect' + headers['Refresh']);
         if (headers['Refresh'].search('0; URL=') == 0) {
           redirect = headers['Refresh'].replace('0; URL=', '');
@@ -520,12 +520,12 @@ function detectRedirect(url) {
           return detectRedirect(redirect);
         }
       } else if (headers.hasOwnProperty('Location') && !(response.getResponseCode() == 302 && headers['Location'].search('/groups/') == 0)) {
-        Logger.log('headers.hasOwnProperty(Location)');
+        //Logger.log('headers.hasOwnProperty(Location)');
         redirect = headers['Location'];
-        Logger.log('  ' + redirect);
+        //Logger.log('  ' + redirect);
         return detectRedirect(redirect);
       } else {
-        Logger.log('no Redirect');
+        //Logger.log('no Redirect');
         return { status: 'ok', type: 'NORMAL LINK', url: url }
       }
     }
@@ -550,16 +550,16 @@ function findLinksToValidate(element, validate, getparams, markorphanedlinks, bi
 
       if (flagsObject.dontCollectLinksFlag === false && element.getText().includes(TEXT_TO_DETECT_START_BIB)) {
         flagsObject.dontCollectLinksFlag = true;
-        Logger.log('⁅bibliography:start⁆');
+        //Logger.log('⁅bibliography:start⁆');
       }
       if (flagsObject.dontCollectLinksFlag === true && element.getText().includes(TEXT_TO_DETECT_END_BIB)) {
         flagsObject.dontCollectLinksFlag = false;
-        Logger.log('⁅bibliography:end⁆');
+        //Logger.log('⁅bibliography:end⁆');
       }
     }
 
     if (flagsObject.dontCollectLinksFlag === true) {
-      Logger.log('dontCollectLinksFlag = true');
+      //Logger.log('dontCollectLinksFlag = true');
       return 0;
     }
     // End. Is the text bibliography?

@@ -17,7 +17,7 @@ function validateLinksTestHelper() {
   }
 
 
-  Logger.log(linksArray);
+  //Logger.log(linksArray);
   let allLinks = '';
   for (let i in linksArray) {
     allLinks += `
