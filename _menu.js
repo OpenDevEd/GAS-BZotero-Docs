@@ -77,44 +77,49 @@ function onOpen(e) {
     .addItem('Show item keys', 'showItemKeys')
     .addItem('Show links & urls', 'validateLinksTestHelper')
     .addSeparator()
-    .addItem('zpack Turn Zotero text citations into links', 'packZoteroCall')
     .addItem('Convert ZoteroTransfer markers to BZotero', 'zoteroTransferDoc')
     .addSeparator()
-    .addItem('Remove country markers (⇡...: )', 'removeCountryMarkers')
+    .addItem('Remove country markers (⇡Country: )', 'removeCountryMarkers')
+    // Remove for now:  
+    //.addItem('znocountry highlight missing country info', 'highlightMissingCountryMarker')
+    // Remove for now
+    // .addItem('zsuper make superscripts for citations', 'makeSuperscriptsForCitations')
   );
 
   // Logger.log('opendevedUser=' + opendevedUser);
   // Elena: I would like these options to only appear for OpenDevEd users. However, the if (...) doesn't work. What is wrong?
-  if (opendevedUser) {
+  //if (opendevedUser) {
     menu.addSeparator()
-      .addSubMenu(DocumentApp.getUi().createMenu('More additional functions')
+      .addSubMenu(DocumentApp.getUi().createMenu('Text citation functions')
+        .addItem('zpack Turn Zotero text citations into links', 'packZoteroCall')
         .addItem('zunpack Turn Zotero links into text', 'unpackCombined')
         .addSeparator()
         .addItem('zpacks Turn selected Zotero text citations into links', 'packZoteroSelectiveCall')
-        .addItem('zpackvancouver Turn Zotero text citations into links, Vancouver style', 'packZoteroCallVancouver')
+    // Remove code
+    //    .addItem('zpackvancouver Turn Zotero text citations into links, Vancouver style', 'packZoteroCallVancouver')
         .addItem('zunpackWarning Turn Zotero links into text, with warnings where citation text has changed', 'unpackCombinedWarning')
-      )
-      .addSubMenu(DocumentApp.getUi().createMenu('Formatting')
-        .addItem('zminify Make Zotero text citations more readable', 'minifyCitations')
-        .addItem('zclear warnings 《warning:...》and ⁅ and ⁆', 'clearZwarnings')
         .addSeparator()
-        .addItem('zmaxify citations', 'maxifyCitations')
-        .addItem('zunfy citations', 'unfyCitations')
+        .addSubMenu(DocumentApp.getUi().createMenu('Format text citations')
+          .addItem('zminify - with small text', 'minifyCitations')
+          .addItem('zmaxify - with coloured text', 'maxifyCitations')
+          .addItem('zunfy - plain text', 'unfyCitations')
+          .addSeparator()
+          .addItem('zclear warnings 《warning:...》and ⁅ and ⁆', 'clearZwarnings')
       )
+      )
+      /* Can be deleted:
       .addSubMenu(DocumentApp.getUi().createMenu('Advanced functions')
-        .addItem("zreorder citation brackets", 'callCitationWalker')
         .addItem('zextract (extract references to another document)', 'zoteroExtractor')
         .addItem('zfixformat (inserts ⇡ and formatting)', 'fixZoteroLinks')
+        .addItem("zreorder citation brackets", 'callCitationWalker')
         .addSeparator()
-        .addItem('zno highlight missing country info', 'highlightMissingCountryMarker')
-        .addItem('zsuper make superscripts for citations', 'makeSuperscriptsForCitations')
         //.addItem('zgovet fixes','govetFixes3')
         //.addItem('zgovet replace Zot codes','govetFixes_new_abbrev')
         .addSeparator()
         .addItem('z1restore (inserts ⁅...⁆ and adjusts formatting, ready for z2unpack)', 'restoreZoteroLinks')
         .addItem('z2unpacklinks (unpacks on basis of ⁅...⁆)', 'zoteroUnpackCall')
-      )
-  }
+      ) */
+  //}
   menu.addToUi();
 }
 

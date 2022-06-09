@@ -27,9 +27,24 @@ function zoteroTransferDoc() {
       groupId = groupItem[1];
       itemKey = groupItem[2];
 
+// Elena: 
       zoteroLink = '⟦zg:' + groupId + ':' + itemKey + '|' + linkText + '⟧';
       //Logger.log(zoteroLink);
 
+// var addBrackets = FALSE;
+// if (linkText.match("^\(.*\)$")) {
+//          remove brackets
+//          addBrackets = TRUE
+// };
+//  urlText = "⇡"+ linkText;
+//  zoteroLink = "https://ref.opendeved.net/zo/zg/" + 2129771 + "/7/" + T4Q5I92Z + "/" + linkText;
+// var linkToInsert = insertLink(urlText, zoteroLink)
+// if (addBrackets) {
+//      linkToInsert = "(" + linkToInsert + ")"
+// }
+
+
+// change this to text with url:
       newZoteroText = zoteroText.replace(zoteroLongString, zoteroLink);
       zoteroCitation.getElement().asText().setText(newZoteroText);
 
