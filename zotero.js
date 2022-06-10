@@ -123,9 +123,6 @@ function highlightMissingCountryMarker() {
   regexpRestyle(regexp, mystyle, p);
 };
 
-function rePackZotero() {
-  // 
-}
 
 function zoteroPackUnpack(pack, promptForLibrary, showWarningsWhenUnpacking, vancouverStyle) {
   var number = 1;
@@ -298,54 +295,11 @@ function packZotero(promptForLibrary, vancouverStyle) {
   return counter;
 }
 
-
-/*
-function zoteroExtractor() {
-  var doc = DocumentApp.getActiveDocument();
-  var dest = DocumentApp.create("zoteroExtract - "+doc.getId());
-  // var dest = DocumentApp.openById("1vTUGlsAV1xTBrO5Z10HNp6AKqxS30sNxC31xBsbpYsk");
-  var dbody = dest.getBody()
-  //var regu =  "⇡.*?⸣";
-  var regu = "⟦[^⟦⟧]*?⟧"
-  var p = getParagraphsInBodyAndFootnotes(false,true);
-  for (var i=0; i<p.length; i++) {
-    var mybody = p[i];
-    var rangeElement = mybody.findText(regu);
-    while (rangeElement !== null) {
-      var mytext =  rangeElement.getElement().getText();
-      var para = dbody.appendParagraph("");
-      var elem = rangeElement.getElement().copy().editAsText();
-      if (rangeElement.isPartial()) {
-        if (rangeElement.getEndOffsetInclusive()+1<=elem.getText().length-1) {
-          elem.deleteText(rangeElement.getEndOffsetInclusive()+1,elem.getText().length-1);
-        }
-        if (rangeElement.getStartOffset()-1>=0) {
-          elem.deleteText(0,rangeElement.getStartOffset()-1);
-        };
-      } else {
-      };
-      para.appendText(elem);
-      // "http://oer.educ.cam.ac.uk/zotero/select/"+item_code+"?r="+encodeURI(mytext);
-      //      var mynewtext = rangeElement.getElement().editAsText().getLinkUrl(rangeElement.getStartOffset());
-      //      mynewtext = mynewtext.replace(/^.*?\?r=/,"");
-      //      mynewtext = decodeURI(mynewtext);
-      //    DocumentApp.getUi().alert(mynewtext);
-      rangeElement = mybody.findText(regu,rangeElement );
-    };
-  }
-}
-*/
-
-// ⇡... only
-function fixZoteroLinks() {
-  element = DocumentApp.getActiveDocument().getBody();
-  linkMarker(element, false);
-};
-
 // ⇡...⸣
 // The problem with this approach is that it leads to ⇡...⇡...⸣ which then cannot be unpacked.
 // Would be better to unpack the links directly - or to use different symbol.
 // NOW IMPLEMENTED
+// unpackCombined, unpackCombinedWarning use the function 
 function restoreZoteroLinks() {
   element = DocumentApp.getActiveDocument().getBody();
   //linkMarker(element,true);
@@ -534,108 +488,6 @@ function zoteroUnpack(promptUser, showWarningsWhenUnpacking) {
   }
 }
 
-function callCitationWalker() {
-  unfyCitations();
-  var element = DocumentApp.getActiveDocument().getBody();
-  citationWalker(element, false);
-  var footnote = DocumentApp.getActiveDocument().getFootnotes();
-  for (var i in footnote) {
-    citationWalker(footnote[i].getFootnoteContents(), false)
-  }
-  maxifyCitations();
-};
-
-function citationWalker(element, showAlert) {
-  // Parse the text iteratively to find the start and end indices for each link
-  var startMarkersInserted = 0;
-  var endMarkersInserted = 0;
-  if (element.getType() === DocumentApp.ElementType.TEXT) {
-    var urlstack = 0;
-    var string = element.getText();
-    var currentChar = null;
-    var max = string.length;
-    var eou = "<>";
-    var eou2 = "⟧)";
-    var stage = 0;
-    var detectedColon = 0;
-    var detectedBracket = 0;
-    var positionBar = 0;
-    var positionStart = 0;
-    var nextChar = null;
-    var prevChar = null;
-    for (var charIndex = 0; charIndex < max; charIndex++) {
-      string = element.getText();
-      max = string.length;
-      currentChar = string.slice(charIndex, charIndex + 1);
-      if (charIndex + 1 < max) {
-        nextChar = string.slice(charIndex + 1, charIndex + 2);
-      } else {
-        nextChar = null;
-      };
-      if (charIndex - 1 > 0) {
-        prevChar = string.slice(charIndex - 1, charIndex);
-      } else {
-        prevChar = null;
-      };
-      if (currentChar == "⟦") {
-        stage = 1;
-        positionStart = charIndex;
-      };
-      if (stage == 1 && currentChar == "|") {
-        stage = 2;
-        positionBar = charIndex + 1;
-        if (nextChar == "(") {
-          element.editAsText().deleteText(charIndex + 1, charIndex + 1);
-          element.editAsText().insertText(positionStart, "(");
-          string = element.getText();
-          max = string.length;
-          positionBar = charIndex + 2;
-        };
-      };
-      if (stage == 2 && currentChar == ":") {
-        detectedColon = 1;
-      };
-      if (stage == 2 && currentChar == "(") {
-        detectedBracket = 1;
-      };
-      if (stage == 2 && currentChar == "⟧") {
-        if (detectedColon == 0) {
-          element.editAsText().insertText(positionBar, ":");
-          charIndex++;
-          string = element.getText();
-          max = string.length;
-          /*
-          element.editAsText().insertText(charIndex, eou);
-          charIndex += eou.length;
-          string = element.getText();
-          max = string.length;
-          currentChar = eou;       
-          */
-        };
-        if (detectedBracket == 0 && prevChar == ")") {
-          //element = 
-          element.editAsText().deleteText(charIndex - 1, charIndex);
-          element.editAsText().insertText(charIndex - 1, eou2);
-          //charIndex += eou2.length;
-          string = element.getText();
-          max = string.length;
-          //currentChar = eou2;    
-        };
-        detectedColon = 0;
-        detectedBracket = 0;
-        positionStart = 0;
-        positionBar = 0;
-        stage = 0;
-      };
-    }
-  } else if (element.getNumChildren) {
-    // If not a text element then recursively get links from child elements
-    for (var i = 0; i < element.getNumChildren(); i++) {
-      citationWalker(element.getChild(i), false);
-    }
-  }
-}
-
 
 
 
@@ -683,43 +535,4 @@ function citationWalker(element, showAlert) {
   }
 
   return links;
-} */
-
-/*
-function fixZoteroLinks() {
-  var links = getAllLinks().getRangeElements();
-  var numChanged = 0;
-  var oldele = null;
-  var ele = null;
-  var eletest = null;
-  var offset = 0;
-  for (var l=0; l<links.length; l++) {
-    if (oldele == eletest) {
-    } else {
-      offset = 0;
-    }
-    var link = links[l];
-    //var url = link.url;
-    ele = link.getElement();
-    eletest = link.getElement();
-    var eat = ele.editAsText();
-    var startOffset = link.getStartOffset()+offset;
-    var endOffsetInclusive = link.getEndOffsetInclusive()+offset;
-    var isPartial = link.isPartial();
-    var url = eat.getLinkUrl(startOffset+offset);
-    //   link.element.
-    var str = eat.getText();
-    str = str.slice(startOffset+offset, endOffsetInclusive+1+offset);
-    // alert(url);      numChanged++
-    if (url && url.match("https://bjohas.de/zo")) {
-      //eat.insertText(link.startOffset,"["+str+"; "+url+"]");
-      //eat.insertText(link.startOffset,"[...]");
-      //link.element.setLinkUrl(link.startOffset, link.endOffsetInclusive, newUrl);
-      eat.insertText(startOffset+offset,"+");
-      offset++;
-      numChanged++
-    }
-    oldele = eletest;
-  }
-  alert("Processed links: "+numChanged+"/"+links.length);
 } */

@@ -7,7 +7,7 @@ function zoteroTransferDoc() {
     const clsCitationRegex = 'ITEM CSL_CITATION.*?}}}\\]}';
     const groupItemRegex = /groups\/([^\:\|]*)\/items\/([^\:\|]*)$/;
 
-    let zoteroCitation, start, end, zoteroString, zoteroLongString, zoteroJson, linkText, groupItem, zoteroLink, counter = 0;
+    let zoteroCitation, start, end, zoteroString, zoteroLongString, zoteroJson, linkText, groupItem, zoteroLink, counter = 0, startLink, endLink;
 
     zoteroCitation = body.findText(clsCitationRegex);
     while (zoteroCitation) {
@@ -27,26 +27,22 @@ function zoteroTransferDoc() {
       groupId = groupItem[1];
       itemKey = groupItem[2];
 
-// Elena: 
-      zoteroLink = '⟦zg:' + groupId + ':' + itemKey + '|' + linkText + '⟧';
-      //Logger.log(zoteroLink);
+      zoteroLink = "https://ref.opendeved.net/zo/zg/" + groupId + "/7/" + itemKey + "/";
+      zoteroLink = replaceAddParameter(zoteroLink, 'openin', 'zoteroapp');
 
-// var addBrackets = FALSE;
-// if (linkText.match("^\(.*\)$")) {
-//          remove brackets
-//          addBrackets = TRUE
-// };
-//  urlText = "⇡"+ linkText;
-//  zoteroLink = "https://ref.opendeved.net/zo/zg/" + 2129771 + "/7/" + T4Q5I92Z + "/" + linkText;
-// var linkToInsert = insertLink(urlText, zoteroLink)
-// if (addBrackets) {
-//      linkToInsert = "(" + linkToInsert + ")"
-// }
+      if (/^\(.*\)$/.test(linkText)) {
+        linkText = linkText.substr(0, 1) + "⇡" + linkText.substr(1);
+        startLink = 1;
+        endLink = linkText.length - 2;
+      } else {
+        linkText = "⇡" + linkText;
+        startLink = 0;
+        endLink = linkText.length - 1;
+      }
 
-
-// change this to text with url:
-      newZoteroText = zoteroText.replace(zoteroLongString, zoteroLink);
-      zoteroCitation.getElement().asText().setText(newZoteroText);
+      // change this to text with url:
+      newZoteroText = zoteroText.replace(zoteroLongString, linkText);
+      zoteroCitation.getElement().asText().setText(newZoteroText).setLinkUrl(startLink, endLink, zoteroLink);
 
       zoteroCitation = body.findText(clsCitationRegex);
       counter++;
