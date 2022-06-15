@@ -83,7 +83,8 @@ function onOpen(e) {
         .addItem('zmaxify - with coloured text', 'maxifyCitations')
         .addItem('zunfy - plain text', 'unfyCitations')
         .addSeparator()
-        .addItem('zclear warnings 《warning:...》and ⁅ and ⁆', 'clearZwarnings')
+        // clearWarningMarkers is new version of clearZwarnings
+        .addItem('zclear warnings 《warning:...》and ❲ and ❳', 'clearWarningMarkers')
       )
     )
 

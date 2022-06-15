@@ -23,6 +23,28 @@ function clearLinkMarkers() {
   }
 }
 
+// Instead of clearZwarnings
+function clearWarningMarkers() {
+  const ui = DocumentApp.getUi();
+  try {
+    const doc = DocumentApp.getActiveDocument();
+    const regEx = "《warning:[^《》]*?》";
+    const regEx2 = UL+"|"+UR;
+    doc.replaceText(regEx, '');
+    doc.replaceText(regEx2, '');
+
+    const footnotes = doc.getFootnotes();
+    let footnote;
+    for (let i in footnotes) {
+      footnote = footnotes[i].getFootnoteContents();
+      footnote.replaceText(regEx, '');
+      footnote.replaceText(regEx2, '');
+    }
+  }
+  catch (error) {
+    ui.alert('Error in clearWarningMarkers: ' + error);
+  }
+}
 
 function removeCountryMarkers() {
   singleReplace("⇡[^⇡:]+: ?","⇡",true,false,false);

@@ -43,7 +43,8 @@ function minifyCitations() {
   regexpRestyle(regexp, mystyle, p);
 };
 
-function clearZwarnings() {
+// Old version clearZwarnings
+function OLDclearZwarnings() {
   singleReplace("《warning: [^《》]*?》", "", true, false, null);
   //  singleReplace("<\/?pn>","",true,false, null);
   //  singleReplace("\\|\\:","|",true,false, null);
@@ -131,12 +132,12 @@ function zoteroPackUnpack(pack, promptForLibrary, showWarningsWhenUnpacking, van
   var rounds = -1;
   var value;
   if (promptForLibrary) {
-    value = getValueFromUser("Convert Zotero text to links", "Please enter the library number you wish to process", "", "", "");
+    value = getValueFromUser("Convert Zotero text to links", "Please enter the library number you wish to process. Only references matching that library number will be converted. Press cancel to convert all.", "", "", "");
   };
   while (number > 0) {
     rounds++;
     if (pack) {
-      number = packZotero(value, vancouverStyle);
+      number = packZotero(value, vancouverStyle, value);
     } else {
       if (rounds == 0) {
         number = zoteroUnpack(true, showWarningsWhenUnpacking);
@@ -159,7 +160,8 @@ function zoteroPackUnpack(pack, promptForLibrary, showWarningsWhenUnpacking, van
   alert("Number of citations that were Zotero-" + string + ": " + total + " (" + rounds + " rounds)." + advice);
 };
 
-function packZotero(promptForLibrary, vancouverStyle) {
+
+function packZotero(promptForLibrary, vancouverStyle, value) {
   var vancouver;
   if (vancouverStyle) {
     vancouver = vancouverStyle;
@@ -176,7 +178,9 @@ function packZotero(promptForLibrary, vancouverStyle) {
   // var body = doc.getBody();
   var regu = "⟦.*?⟧";
   if (promptForLibrary) {
-    regu = "⟦zg:" + value + ".*?⟧";
+    if (value) {
+      regu = "⟦zg:" + value + ":.*?⟧";
+    }
   }
   var p = getParagraphsInBodyAndFootnotes(false, true);
   if (!p) {
