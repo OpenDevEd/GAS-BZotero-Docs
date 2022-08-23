@@ -13,7 +13,7 @@ function universalInsertUpdateBibliography(validate, getparams) {
     const documentId = doc.getId();
 
     let result = validateLinks(validate, getparams, true);
-    let validationSite, zoteroItemKey, zoteroItemGroup, bibLink, zoteroItemKeyParameters, biblTexts;
+    let validationSite, zoteroItemKey, zoteroItemGroup, bibLink, zoteroItemKeyParameters, biblTexts = [];
     let bibReferences = [];
     if (result.status == 'ok') {
       validationSite = result.validationSite;

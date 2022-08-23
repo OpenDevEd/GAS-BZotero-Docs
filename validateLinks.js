@@ -290,7 +290,6 @@ function checkHyperlinkNew(url, element, start, end, validate, getparams, markor
   let linkText, previousLinkIndex, flagMarkOrphanedLinks = false;
   if (markorphanedlinks) {
     linkText = element.getText().substr(start, end - start + 1);
-    //Logger.log(linkText);
 
     // If there is an isolated whitespace (or more whitespaces) with a link
     if (linkText.match(/^\s+$/)) {
@@ -317,7 +316,8 @@ function checkHyperlinkNew(url, element, start, end, validate, getparams, markor
   }
 
 
-  let urlRegEx = new RegExp('https?://ref.opendeved.net/zo/zg/[0-9]+/7/[^/]+/?', 'i');
+  //let urlRegEx = new RegExp('https?://ref.opendeved.net/zo/zg/[0-9]+/7/[^/]+/?', 'i');
+  const urlRegEx = new RegExp('https?://ref.opendeved.net/zo/zg/[0-9]+/7/[^/]+/?|https?://docs.(edtechhub.org|opendeved.net)/lib(/[^/\?]+/?|.*id=[A-Za-z0-9]+)', 'i');
   if (url.search(urlRegEx) == 0) {
     //Logger.log('Yes----------------------');
 
@@ -375,28 +375,36 @@ function checkHyperlinkNew(url, element, start, end, validate, getparams, markor
 
 function checkLink(url, validationSite, validate) {
 
-  //Logger.log('validationSite=' + validationSite);
-
   let urlOut, itemKeyOut;
-  let opendevedPartLink, itemKeyIn, groupIdIn;
+  let itemKeyIn, groupIdIn;
 
   let validationSiteRegEx = new RegExp(validationSite, 'i');
-  let opendevedRgEx = new RegExp('http[s]*://ref.opendeved.net/zo/zg/', 'i');
 
-  opendevedPartLink = url.replace(opendevedRgEx, '');
-  let array = opendevedPartLink.split('/');
-  groupIdIn = array[0];
-  itemKeyIn = array[2];
-  const questionPos = itemKeyIn.indexOf('?');
-  if (questionPos != -1) {
-    itemKeyIn = itemKeyIn.slice(0, questionPos);
+  /*
+    let opendevedRgEx = new RegExp('http[s]*://ref.opendeved.net/zo/zg/', 'i');
+  
+    opendevedPartLink = url.replace(opendevedRgEx, '');
+    let array = opendevedPartLink.split('/');
+    groupIdIn = array[0];
+    itemKeyIn = array[2];
+    const questionPos = itemKeyIn.indexOf('?');
+    if (questionPos != -1) {
+      itemKeyIn = itemKeyIn.slice(0, questionPos);
+    }
+  */
+
+  const resultGroupIdItemKeyIn = getGroupIdItemKey(url);
+  if (resultGroupIdItemKeyIn.status != 'ok') {
+    return resultGroupIdItemKeyIn;
   }
+  //Logger.log(url + ' resultGroupIdItemKeyIn=' + JSON.stringify(resultGroupIdItemKeyIn));
+  groupIdIn = resultGroupIdItemKeyIn['groupId'];
+  itemKeyIn = resultGroupIdItemKeyIn['itemKey'];
 
   // New code Adjustment of broken links  2021-05-03
   let new_Url;
 
   if (validationSite != '-') {
-
     if (groupIdIn == '2405685' || groupIdIn == '2129771') {
       newUrl = validationSite + itemKeyIn;
     } else {
@@ -422,31 +430,36 @@ function checkLink(url, validationSite, validate) {
   }
   // End. 2021-05-11 Update
 
-  // OLD
-  // let resultDetectGroupId = detectGroupId(validationSite);
-  // if (resultDetectGroupId.status == 'error') {
-  //   return resultDetectGroupId;
-  // }
-  // let grourIdOut = resultDetectGroupId.grourId;
-
-  let grourIdOut = styles[ACTIVE_STYLE]['group_id'];
+  let groupIdOut = styles[ACTIVE_STYLE]['group_id'];
 
   if (validate && result.type == 'NORMAL LINK' && validationSite != '-') {
     urlOut = result.url;
     if (urlOut.search(validationSiteRegEx) != 0) {
       return { status: 'error', message: 'Unexpected redirect URL ' + urlOut + ' for link ' + url + ' Script expects ' + validationSite };
     }
-    itemKeyOut = urlOut.replace(validationSiteRegEx, '');
-    if (itemKeyOut.indexOf('/') != -1) {
-      itemKeyOut = itemKeyOut.split('/')[0];
-    }
 
-    url = url.replace(groupIdIn, grourIdOut);
-    url = url.replace(itemKeyIn, itemKeyOut);
+    const resultGroupIdItemKeyOut = getGroupIdItemKey(urlOut);
+    if (resultGroupIdItemKeyOut.status != 'ok') {
+      return resultGroupIdItemKeyOut;
+    }
+    //Logger.log(urlOut + ' resultGroupIdItemKeyOut=' + JSON.stringify(resultGroupIdItemKeyOut));
+    itemKeyOut = resultGroupIdItemKeyOut['itemKey'];
+
+    /*   itemKeyOut = urlOut.replace(validationSiteRegEx, '');
+       if (itemKeyOut.indexOf('/') != -1) {
+         itemKeyOut = itemKeyOut.split('/')[0];
+       }
+    */
+    if (resultGroupIdItemKeyOut.linkType == '1-ref') {
+      url = url.replace(groupIdIn, groupIdOut);
+      url = url.replace(itemKeyIn, itemKeyOut);
+    } else {
+      url = 'https://ref.opendeved.net/zo/zg/' + groupIdOut + '/7/' + itemKeyOut + '/';
+    }
 
     result.url = url;
   } else {
-    grourIdOut = groupIdIn;
+    groupIdOut = groupIdIn;
     itemKeyOut = itemKeyIn;
   }
 
@@ -467,7 +480,7 @@ function checkLink(url, validationSite, validate) {
   // 2022-03-25 Update Permitted libraries new version
   if (validationSite != '-') {
     let permittedLibrary = false;
-    if (PERMITTED_LIBRARIES.includes(grourIdOut)) {
+    if (PERMITTED_LIBRARIES.includes(groupIdOut)) {
       permittedLibrary = true;
     }
     result.permittedLibrary = permittedLibrary;
@@ -476,25 +489,54 @@ function checkLink(url, validationSite, validate) {
 
 
   // BZotero 2 Task 2
-  result.bibRef = grourIdOut + ':' + itemKeyOut;
+  result.bibRef = groupIdOut + ':' + itemKeyOut;
 
   return result;
 }
 
-// To delete
-function detectGroupId(validationSite) {
+function getGroupIdItemKey(url) {
+  try {
+    let link = url.trim();
+    let linkType, result, validationSiteRegEx, groupId, itemKey;
+    //Logger.log(link);
 
-  let grourIdOut;
-  if (validationSite == 'https://docs.opendeved.net/lib/') {
-    grourIdOut = '2129771';
-  } else if (validationSite == 'https://docs.edtechhub.org/lib/') {
-    grourIdOut = '2405685';
-  } else {
-    return { status: 'error', message: 'Incorrect validation site.' };
+    const regExTypeOne = new RegExp('https?://ref.opendeved.net/zo/zg/([0-9]+)/7/([^/\?]+)/?', 'i');
+    const regExTypeTwo = new RegExp('/lib/([^/\?]+)/?', 'i');
+    const regExTypeThree = new RegExp('id=([A-Za-z0-9]+)', 'i');
+
+    if (regExTypeOne.test(link)) {
+      linkType = '1-ref';
+      result = regExTypeOne.exec(link);
+      itemKey = result[2];
+      groupId = result[1];
+    } else if (regExTypeTwo.test(link)) {
+      linkType = '2-docs';
+      result = regExTypeTwo.exec(link);
+      itemKey = result[1];
+    } else {
+      linkType = '3-search-list';
+      result = regExTypeThree.exec(link);
+      itemKey = result[1];
+    }
+    //Logger.log('linkType=' + linkType);
+
+    if (linkType == '2-docs' || linkType == '3-search-list') {
+      for (let style in styles) {
+        if (styles[style]['kerkoValidationSite'] != null) {
+          validationSiteRegEx = new RegExp(styles[style]['kerkoValidationSite'], 'i');
+          if (validationSiteRegEx.test(link)) {
+            groupId = styles[style]['group_id'];
+            break;
+          }
+        }
+      }
+    }
+
+    return { status: 'ok', groupId: groupId, itemKey: itemKey, linkType: linkType };
   }
-
-  return { status: 'ok', grourId: grourIdOut };
-
+  catch (error) {
+    return { status: 'error', message: 'Error in getGroupIdItemKey: ' + error };
+  }
 }
 
 function detectRedirect(url) {
