@@ -10,15 +10,24 @@ function forestAPIcall(validationSite, zoteroItemKey, zoteroItemGroup, bibRefere
       return { status: 'error', message: 'Access denied! You can\'t use Forest API.' };
     }
 
-    let apiCall = 'https://forest.opendeved.net/api?&user=' + activeUser
-      + '&zkey=' + zoteroItemKey + '&zgroup=' + zoteroItemGroup
-      + '&gdoc=' + docOrPresoId + '&token=' + token + '&groupkeys=' + groupkeys + '&target=' + target + '&mode=' + mode;
+    const apiCall = 'https://forest.opendeved.net/api/bib/';
 
-    if (apiCall.length > 2048) {
-      return { status: 'error', message: 'This document has too many references. Please check for alternatives with your systems administrator.' };
-    }
+    const options = {
+      'method': 'post',
+      'payload': JSON.stringify({
+        'user': activeUser,
+        'zkey': zoteroItemKey,
+        'zgroup': zoteroItemGroup,
+        'gdoc': docOrPresoId,
+        'token': token,
+        'groupkeys': groupkeys,
+        'target': target,
+        'mode': mode
+      }),
+      'muteHttpExceptions': true
+    };
 
-    const response = UrlFetchApp.fetch(apiCall, { 'muteHttpExceptions': true });
+    const response = UrlFetchApp.fetch(apiCall, options);
     const code = response.getResponseCode();
     let biblTexts = [];
 
